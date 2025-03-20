@@ -175,17 +175,28 @@ namespace FlameRotation
             UpdateParticles();
             DrawParticles();
 
-            // Отрисовка куба (включая черную грань)
-            DrawCube();
+
 
             // Проверка, находится ли пламя выше черной грани
             if (!IsBlackFaceVisible())
-            {   
+            {
+                // Отрисовка куба (включая черную грань)
+                DrawCube();
                 if (tick_counter % 2 == 0)
                 // Обновление и отрисовка огня
                 UpdateFire();
                 DrawFire();
+            }else
+            {
+                if (tick_counter % 2 == 0)
+                    // Обновление и отрисовка огня
+                    UpdateFire();
+                DrawFire();
+                // Отрисовка куба (включая черную грань)
+                DrawCube();
             }
+
+
 
         }
 
@@ -334,7 +345,7 @@ namespace FlameRotation
                 };
 
                 // Отрисовка треугольника
-                DrawFace(points, Brushes.Orange);
+                DrawFace(points, GenerateOrangeShades());
             }
 
             // Отрисовка маленьких красных треугольников
@@ -362,7 +373,17 @@ namespace FlameRotation
                 DrawFace(smallPoints, Brushes.Yellow);
             }
         }
+        static SolidColorBrush GenerateOrangeShades()
+        {
+            Random random = new Random();
+                byte red = 255; // Красный компонент всегда максимальный для оранжевого
+                byte green = (byte)random.Next(100, 200); // Зеленый компонент варьируется
+                byte blue = 0; // Синий компонент минимальный для оранжевого
 
+                Color color = Color.FromRgb(red, green, blue);
+                SolidColorBrush brush = new SolidColorBrush(color);
+                return brush;
+        }
         private void UpdateParticles()
         {
             // Добавление новых частиц
@@ -376,7 +397,7 @@ namespace FlameRotation
 
                 particles.Add(new Particle(
                     new Point3D(x, y, z),
-                    new Vector3D(0, random.NextDouble() * 0.1, 0)
+                    new Vector3D((random.NextDouble()*2-1) * 0.02, random.NextDouble() * 0.1, (random.NextDouble() * 2 - 1) * 0.02)
                 ));
             }
 
@@ -412,13 +433,25 @@ namespace FlameRotation
                 {
                     Width = 5,
                     Height = 5,
-                    Fill = Brushes.Yellow,
+                    Fill = GenerateYellowShades(),
                     Opacity = particle.Life
                 };
                 Canvas.SetLeft(ellipse, point.X);
                 Canvas.SetTop(ellipse, point.Y);
                 canvas.Children.Add(ellipse);
             }
+        }
+
+        static SolidColorBrush GenerateYellowShades()
+        {
+            Random random = new Random();
+            byte red = 250; // Красный компонент всегда максимальный для оранжевого
+            byte green = (byte)random.Next(150, 200); // Зеленый компонент варьируется
+            byte blue = 0; // Синий компонент минимальный для оранжевого
+
+            Color color = Color.FromRgb(red, green, blue);
+            SolidColorBrush brush = new SolidColorBrush(color);
+            return brush;
         }
 
         private Point Project(Point3D point)
@@ -549,7 +582,7 @@ namespace FlameRotation
                 Position.X += Velocity.X;
                 Position.Y += Velocity.Y;
                 Position.Z += Velocity.Z;
-                Life -= 0.01; // Постепенное затухание
+                Life -= 0.03; // Постепенное затухание
             }
         }
 
